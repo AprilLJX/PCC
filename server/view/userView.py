@@ -40,7 +40,7 @@ def showUserMes():
     data = json.loads(request.get_data(as_text=True))
     userid = data.get("userid")
 
-    res = json.dumps(user_model.showUserMes_model(userid))
+    res = json.dumps(user_model.showUserMes_model(user_model,userid))
     return res
 
 #修改用户信息

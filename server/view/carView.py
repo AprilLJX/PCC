@@ -27,13 +27,14 @@ def startCar():
     userid_1 = data.get('userid_1')
     remark = data.get('remark')
 
-    res = json.dumps(car_model.startCar_model(carModel))
+    res = json.dumps(car_model.startCar_model(car_model,startpoint,endpoint,startdate,starttime,maxnum,price,userid_1,remark))
     return res
 
 #加入拼车
 #carid：所加入的拼车单的id
 #userid：申请加入该拼车的用户
 #todo 怎么保证是该用户申请的（当前用户可以直接通过该url实现功能）
+# todo 该用户需要是可登录用户
 @car_view.route('/joincarpool', methods=["GET", "POST"])
 def joinCar():
     data = json.loads(request.get_data(as_text=True))
@@ -62,5 +63,5 @@ def exitCar():
 @car_view.route('/showcarlist', methods=["GET", "POST"])
 def showCarList():
 
-    res = json.dumps(car_model.showCarList_model)
+    res = json.dumps(car_model.showCarList_model(car_model))
     return res

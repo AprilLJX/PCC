@@ -9,7 +9,11 @@ def signup():
     conn = sqlite3.connect("data/pccDB.db")
     c = conn.cursor()
 
-    data = json.loads(request.get_data(as_text=True))
+
+    data = (request.get_data(as_text=True))
+    print(type(data))
+    data = json.loads(data)
+    # data = json.loads(request.get_data(as_text=True))
     phone = data.get('phone')
     nickname = data.get('nickname')
     password = data.get('password')

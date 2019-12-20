@@ -78,6 +78,7 @@ class userModel:
         return res
 
     #修改用户信息
+    #todo 没有东西修改的话保持原值（前端还是后端实现？？）
     def updateUser_model(self,nickname, password, headImg, gender, infor, userid):
 
         conn = sqlite3.connect("data/pccDB.db")

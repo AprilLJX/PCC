@@ -7,7 +7,7 @@ class carModel:
         conn = sqlite3.connect("data/pccDB.db")
         c = conn.cursor()
         c.execute("INSERT INTO cartable(startpoint,endpoint,startdate,starttime,maxnum,price,userid_1,remark) "
-                  "VALUES (?,?,?,?,?,?,?)",
+                  "VALUES (?,?,?,?,?,?,?,?)",
                   (startpoint, endpoint, startdate, starttime, maxnum, price, userid_1, remark))
         carid = c.lastrowid
         conn.commit()
@@ -53,21 +53,35 @@ class carModel:
         cursor = list(
             c.execute(
                 "SELECT userid_1,userid_2,userid_3,userid_4,currentnum FROM cartable WHERE carid = {}".format(carid)))
+        #当前人数为1，表示当前拼车只有一个人，退出即表示删除该订单
+        #todo 如何保证退出的拼车单中存在该用户
+        if cursor[0][4] == 1:
+            c.execute("UPDATE cartable SET currentnum = 0,ifdelete = 1  WHERE carid = {}".format(carid))
+            res["status"] = "删除成功"
+
+            conn.commit()
+            conn.close()
+            return res
+        #若退出的为发起的人，则将所有用户前移
         if str(cursor[0][0]) == userid:
-            # TODO 直接删除是否太暴力了
-            c.execute("DELETE FROM cartable WHERE carid = {}".format(carid))
+            c.execute("UPDATE cartable SET userid_1 = {},userid_2 = {},userid_3 = {}, userid_4 = NULL,currentnum = {}"
+                      " WHERE carid = {}".format(cursor[0][1],cursor[0][2],cursor[0][3],cursor[0][4] - 1,carid))
             res["status"] = "删除成功"
         elif str(cursor[0][1]) == userid:
-            c.execute(
-                "UPDATE cartable SET userid_2 = NULL,currentnum = {}  WHERE carid = {}".format(cursor[0][4] - 1, carid))
-            res["status"] = "退出拼车成功"
+
+
+            c.execute("UPDATE cartable SET userid_2 = '{}',userid_3 = '{}',userid_4 = NULL,currentnum = '{}' WHERE carid = '{}'".format(cursor[0][2], cursor[0][3] ,cursor[0][4] - 1 , carid))
+            res["msg"] = "退出拼车成功"
+            res["stratus"] = 1
         elif str(cursor[0][2]) == userid:
             c.execute(
-                "UPDATE cartable SET userid_3 = NULL,currentnum = {}  WHERE carid = {}".format(cursor[0][4] - 1, carid))
+                "UPDATE cartable SET userid_3 = {}, userid_4 = NULL,currentnum = {}"
+                      " WHERE carid = {}".format(cursor[0][3],cursor[0][4] - 1,carid))
             res["status"] = "退出拼车成功"
         elif str(cursor[0][3]) == userid:
             c.execute(
-                "UPDATE cartable SET userid_4 = NULL,currentnum = {}  WHERE carid = {}".format(cursor[0][4] - 1, carid))
+                "UPDATE cartable SET userid_4 = NULL,currentnum = {}"
+                      " WHERE carid = {}".format(cursor[0][4] - 1,carid))
             res["status"] = "退出拼车成功"
         else:
             res["status"] = "失败，没有权限"
@@ -77,11 +91,10 @@ class carModel:
 
         return res
 
-    @app.route('/showcarlist', methods=["GET", "POST"])
     def showCarList_model(self):
         conn = sqlite3.connect("data/pccDB.db")
         c = conn.cursor()
-        cursor = c.execute("SELECT * FROM cartable WHERE ifcomplete = 0")
+        cursor = c.execute("SELECT * FROM cartable WHERE ifcomplete = 0 and ifdelete = 0")
         res = {}
         restmp = {}
         for row in cursor:
