@@ -1,9 +1,11 @@
 from flask import Flask
 from view.userView import user_view
+from view.carView import car_view
 
 
 app = Flask(__name__)
 app.register_blueprint(user_view)
+app.register_blueprint(car_view)
 
 @app.route("/")
 def hello():
