@@ -1,6 +1,7 @@
 import json
 from flask import request,Blueprint
 from model import userModel
+import hashlib
 
 user_view = Blueprint('user_view',__name__)
 user_model = userModel.userModel
@@ -13,10 +14,15 @@ def signup():
     #获取客户端json
     data = json.loads(request.get_data(as_text=True))
     phone = data.get('phone')
-    password = data.get('password')
+    password = str(data.get('password'))
+
+    #密码加密
+    depassword = hashlib.md5()
+    depassword.update(password.encode('utf-8'))
+    depassword = depassword.hexdigest()
 
     #model层进行数据处理
-    res = json.dumps(user_model.signup_model(user_model,phone,password))
+    res = json.dumps(user_model.signup_model(user_model,phone,depassword))
 
     return res
 
@@ -28,9 +34,15 @@ def login():
     # 获取客户端json
     data = json.loads(request.get_data(as_text=True))
     phone = data.get('phone')
-    password = data.get('password')
+    password = str(data.get('password'))
 
-    res = json.dumps(user_model.login_model(user_model,phone,password))
+    #密码加密后与数据库匹配
+    depassword = hashlib.md5()
+    depassword.update(password.encode('utf-8'))
+    depassword = depassword.hexdigest()
+
+
+    res = json.dumps(user_model.login_model(user_model,phone,depassword))
     return res
 
 #显示用户信息
