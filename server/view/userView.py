@@ -2,19 +2,40 @@ import json
 from flask import request,Blueprint
 from model import userModel
 import hashlib
+import re
+from ihome.utils.image_storage import storage
+
 
 user_view = Blueprint('user_view',__name__)
 user_model = userModel.userModel
 
 # phone:用户手机注册
 # passwoerd：密码
-#TODO:密码hash存储，手机号格式验证
+#TODofinish:密码hash存储，手机号格式验证
+#todo 手机号验证码
 @user_view.route('/signup', methods=["GET", "POST"])
 def signup():
     #获取客户端json
     data = json.loads(request.get_data(as_text=True))
-    phone = data.get('phone')
+    phone = str(data.get('phone'))
     password = str(data.get('password'))
+
+    res = {}
+
+    #判断数据是否为空
+    if len(phone) == 0 or len(password) == 0:
+        res['status'] = 0
+        res['mag'] = "参数为空"
+        return res
+
+    #手机号格式验证
+    pattern = re.compile('13[0,1,2,3,4,5,6,7,8,9]|15[0,1,2,7,8,9,5,6,3]|18[0,1,9,5,6,3,4,2,7,8]|17[6,7]|147\d{8}')
+    pattern_true = pattern.match(str(phone))
+
+    if not pattern_true:
+        res["status"] = 0
+        res["mag"] = "手机号格式错误"
+        return res
 
     #密码加密
     depassword = hashlib.md5()
@@ -28,13 +49,31 @@ def signup():
 
 # phone:用户手机注册
 # passwoerd：密码
-#TODO:手机号格式验证，多次登录验证，简单的安全登录
+#TODOfinish:手机号格式验证，多次登录验证，简单的安全登录
+#todo 多次登录验证
 @user_view.route('/login', methods=["GET", "POST"])
 def login():
     # 获取客户端json
     data = json.loads(request.get_data(as_text=True))
-    phone = data.get('phone')
+    phone = str(data.get('phone'))
     password = str(data.get('password'))
+
+    res = {}
+    #todo 这里太冗余了，代码跟上面的一样
+    #判断数据是否为空
+    if len(phone) == 0 or len(password) == 0:
+        res['status'] = 0
+        res['mag'] = "参数为空"
+        return res
+
+    # 手机号格式验证
+    pattern = re.compile('13[0,1,2,3,4,5,6,7,8,9]|15[0,1,2,7,8,9,5,6,3]|18[0,1,9,5,6,3,4,2,7,8]|17[6,7]|147\d{8}')
+    pattern_true = pattern.match(str(phone))
+
+    if not pattern_true:
+        res["status"] = 0
+        res["mag"] = "手机号格式错误"
+        return res
 
     #密码加密后与数据库匹配
     depassword = hashlib.md5()
@@ -51,6 +90,13 @@ def login():
 def showUserMes():
     data = json.loads(request.get_data(as_text=True))
     userid = data.get("userid")
+    res = {}
+
+    if type(userid) != int:
+        res["status"] = 0
+        res["msg"] = "格式错误"
+        return res
+
 
     res = json.dumps(user_model.showUserMes_model(user_model,userid))
     return res

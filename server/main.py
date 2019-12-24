@@ -4,6 +4,8 @@ from view.carView import car_view
 
 
 app = Flask(__name__)
+app.config["JSON_AS_ASCII"] = False
+
 app.register_blueprint(user_view)
 app.register_blueprint(car_view)
 
