@@ -40,7 +40,7 @@ class userModel:
         cursor = list(cursor)
 
         res = {}
-        #TODO 在view层判断数据格式
+
         if len(cursor):
             #手机号密码匹配成功，登录返回uid和状态
             if str(cursor[0][1]) == phone and str(cursor[0][2]) == password:
@@ -83,7 +83,7 @@ class userModel:
 
         conn = sqlite3.connect("data/pccDB.db")
         c = conn.cursor()
-        # TODO 为什么这里要加引号
+        # TODO  为什么这里要加引号
         c.execute(
             "UPDATE usertable SET nickname = '{}',password = '{}',headImg = '{}',gender = '{}',infor = '{}' WHERE userid = {}".format(
                 nickname, password, headImg, gender, infor, userid))
