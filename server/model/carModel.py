@@ -19,7 +19,29 @@ class carModel:
 
         return res
 
+    def selectCar_model(self, carid):
+        conn = sqlite3.connect("data/pccDB.db")
+        c = conn.cursor()
+        cursor = c.execute("SELECT * FROM cartable WHERE carid = '{}'".format(carid))
+        cursor = list(cursor)
 
+        res = {}
+        res["car"] = cursor
+
+        userlist = []
+        reslist = []
+        userlist.append(cursor[0][8])
+        userlist.append(cursor[0][9])
+        userlist.append(cursor[0][10])
+        userlist.append(cursor[0][11])
+
+        for user in userlist:
+            if user:
+                reslist.append(list(c.execute("SELECT userid,nickname, phone,headImg, gender,infor FROM usertable WHERE userid = '{}'".format(user)))[0])
+
+        res["user"] = reslist
+
+        return res
 
     def joinCar_model(self,carid,userid):
         useradd = "userid_"

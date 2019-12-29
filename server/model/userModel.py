@@ -199,7 +199,7 @@ class userModel:
                 c = conn.cursor()
 
                 # 执行SQL语句
-                SQL = "UPDATE usertable SET password = '{}' WHERE phone = {}".format(depassword, phone)
+                SQL = "UPDATE usertable SET password = '{}' WHERE phone = '{}'".format(depassword, phone)
                 c.execute(SQL)
                 conn.commit()
                 conn.close()

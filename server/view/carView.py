@@ -30,6 +30,19 @@ def startCar():
     res = json.dumps(car_model.startCar_model(car_model,startpoint,endpoint,startdate,starttime,maxnum,price,userid_1,remark))
     return res
 
+#选择发车
+#@params:
+#carid:拼车id
+@car_view.route('/selectCar',methods=["GET", "POST"])
+def selectCar():
+    data = json.loads(request.get_data(as_text=True))
+    carid = data.get("carid")
+
+    res = json.dumps(car_model.selectCar_model(car_model,carid))
+    return res
+
+
+
 #加入拼车
 #carid：所加入的拼车单的id
 #userid：申请加入该拼车的用户
