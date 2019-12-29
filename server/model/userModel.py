@@ -13,7 +13,7 @@ verifycodeDic = {}
 
 class userModel:
 
-    def getSms(self):
+    def getSms(self,phone):
         # 定义一个空列表，每次循环，将拿到的值，加入列表
         random_num = []
         # choice函数：每次从seeds拿一个值，加入列表
@@ -35,7 +35,7 @@ class userModel:
         request.add_query_param('TemplateCode', "SMS_181501054")
         request.add_query_param('TemplateParam', code)
 
-        request.add_query_param('PhoneNumbers', "15387594636")
+        request.add_query_param('PhoneNumbers', phone)
 
         response = client.do_action(request)
         # python2:  print(response)
@@ -48,7 +48,7 @@ class userModel:
         res = {}
         # function为0返回验证码
         if function == "0":
-            verifycodeDic[phone] = self.getSms(self)
+            verifycodeDic[phone] = self.getSms(self,phone)
             res["verifycode"] = verifycodeDic[phone]
             return res
 
@@ -164,7 +164,7 @@ class userModel:
         return res
 
     #修改密码
-    def updatePwd_model(self,phone,password):
+    def updatePwd_model(self,phone,password,function,verifycode):
         conn = sqlite3.connect("data/pccDB.db")
         c = conn.cursor()
         SQL = "SELECT userid from usertable where phone = '%s' " % phone
@@ -181,13 +181,38 @@ class userModel:
             res["msg"] = "账号不存在"
             return res
 
-        SQL = "UPDATE usertable SET password = {} WHERE phone = {}".format(password,phone)
-        c.execute(SQL)
-        conn.commit()
-        conn.close()
+        # function为0返回验证码
+        if function == "0":
+            verifycodeDic[phone] = self.getSms(self)
+            res["verifycode"] = verifycodeDic[phone]
+            return res
 
-        res["status"] = 1
-        res["msg"] = "修改成功"
+        # function为1代表注册，判断验证码是否一致
+        if function == "1":
+            if verifycode == verifycodeDic[phone]:
+                # 密码加密
+                depassword = hashlib.md5()
+                depassword.update(password.encode('utf-8'))
+                depassword = depassword.hexdigest()
+                # 连接数据库
+                conn = sqlite3.connect("data/pccDB.db")
+                c = conn.cursor()
+
+                # 执行SQL语句
+                SQL = "UPDATE usertable SET password = {} WHERE phone = {}".format(depassword, phone)
+                c.execute(SQL)
+                conn.commit()
+                conn.close()
+                res["status"] = 1
+                res["msg"] = "修改成功"
+                return res
+
+            else:
+                res["status"] = 0
+                res["msg"] = "验证码错误"
+                return res
+
+
 
 
 

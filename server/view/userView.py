@@ -126,13 +126,8 @@ def updatePwd():
     function = str(data.get("function"))
     verifycode = str(data.get("verifycode"))
 
-    res = {}
-
-    #判断用户是否存在
-    if not user_model.updatePwd_model(user_model,phone):
-        res["status"] = 0
-        res["msg"] = "账号不存在"
-        return res
+    res = json.dumps(user_model.updatePwd_model(user_model,phone,password,function,verifycode))
+    return res
 
 
 
