@@ -120,8 +120,8 @@ class carModel:
         c = conn.cursor()
         cursor = c.execute("SELECT * FROM cartable WHERE ifcomplete = 0 and ifdelete = 0")
         res = {}
-        restmp = {}
         for row in cursor:
+            restmp = {}
             restmp["carid"] = row[0]
             restmp["startpoint"] = row[1]
             restmp["endpoint"] = row[2]
@@ -135,7 +135,6 @@ class carModel:
             restmp["userid_4"] = row[10]
             restmp["remark"] = row[11]
             restmp["ifcomplete"] = row[12]
-
             res[str(row[0])] = restmp
 
         return res
