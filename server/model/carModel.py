@@ -19,6 +19,8 @@ class carModel:
 
         return res
 
+
+
     def joinCar_model(self,carid,userid):
         useradd = "userid_"
         currentnum = 0
@@ -115,3 +117,75 @@ class carModel:
             res[str(row[0])] = restmp
 
         return res
+
+    #边际距离算法
+    def minDistance(self,word1, word2):
+        n1 = len(word1)
+        n2 = len(word2)
+        dp = [[0] * (n2 + 1) for _ in range(n1 + 1)]
+        # 第一行
+        for j in range(1, n2 + 1):
+            dp[0][j] = dp[0][j - 1] + 1
+        # 第一列
+        for i in range(1, n1 + 1):
+            dp[i][0] = dp[i - 1][0] + 1
+        for i in range(1, n1 + 1):
+            for j in range(1, n2 + 1):
+                if word1[i - 1] == word2[j - 1]:
+                    dp[i][j] = dp[i - 1][j - 1]
+                else:
+                    dp[i][j] = min(dp[i][j - 1], dp[i - 1][j], dp[i - 1][j - 1]) + 1
+        # print(dp)
+        return dp[-1][-1]
+
+    #搜索拼车信息
+    def searchCar_model(self,date,startpoint,endpoint):
+        conn = sqlite3.connect("data/pccDB.db")
+        c = conn.cursor()
+        cursor = c.execute("SELECT * FROM cartable WHERE ifcomplete = 0 and ifdelete = 0")
+        cursor = list(cursor)
+
+        restmp = {}
+        carList = []
+        resList = {}
+        for row in cursor:
+            #第一轮查询当前日期的所有订单
+            if row[3] == date:
+                restmp["carid"] = row[0]
+                restmp["startpoint"] = row[1]
+                restmp["endpoint"] = row[2]
+                restmp["startdate"] = row[3]
+                restmp["starttime"] = row[4]
+                restmp["maxnum"] = row[5]
+                restmp["price"] = row[6]
+                restmp["userid_1"] = row[7]
+                restmp["userid_2"] = row[8]
+                restmp["userid_3"] = row[9]
+                restmp["userid_4"] = row[10]
+                restmp["remark"] = row[11]
+                restmp["ifcomplete"] = row[12]
+                carList.append(restmp)
+
+        #计算距离
+        for car in carList:
+            startDis = self.minDistance(self,startpoint,car["startpoint"])
+            endDis = self.minDistance(self,endpoint,car["endpoint"])
+
+            car["dis"] = startDis + endDis
+
+        carList = sorted(carList, key=lambda x: x["dis"])
+        return carList
+
+
+
+
+
+
+
+
+
+
+
+
+
+

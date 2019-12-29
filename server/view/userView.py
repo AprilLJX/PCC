@@ -99,7 +99,7 @@ def showUserMes():
 #gender： 性别
 #infor：个性签名
 #todo 头像
-#TODO 修改密码，输入原密码，修改密码之后重新输入确认
+#TODOfinish 修改密码，输入原密码，修改密码之后重新输入确认
 @user_view.route('/updateuser', methods=["GET", "POST"])
 def updateUser():
     data = json.loads(request.get_data(as_text=True))

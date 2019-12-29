@@ -1,4 +1,4 @@
-from flask import Flask,Blueprint,request
+from flask import Blueprint,request
 from model import carModel
 import json
 
@@ -65,3 +65,19 @@ def showCarList():
 
     res = json.dumps(car_model.showCarList_model(car_model))
     return res
+
+#搜索拼车信息
+#@params:
+#date:日期
+#startpoint:起点
+#endpoint:终点
+@car_view.route('/searchCar',methods=["GET", "POST"])
+def searchCar():
+    data = json.loads(request.get_data(as_text=True))
+    date = data.get("date")
+    startpoint = data.get("startpoint")
+    endpoint = data.get("endpoint")
+
+    res = json.dumps(car_model.searchCar_model(car_model,date,startpoint,endpoint))
+    return res
+
