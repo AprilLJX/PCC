@@ -31,7 +31,7 @@ def signup():
         return res
 
     #手机号格式验证
-    pattern = re.compile('13[0,1,2,3,4,5,6,7,8,9]|15[0,1,2,7,8,9,5,6,3]|18[0,1,9,5,6,3,4,2,7,8]|17[6,7]|147\d{8}')
+    pattern = re.compile('19[0,1,2,3,4,5,6,7,8,9]|13[0,1,2,3,4,5,6,7,8,9]|15[0,1,2,7,8,9,5,6,3]|18[0,1,9,5,6,3,4,2,7,8]|17[6,7]|147\d{8}')
     pattern_true = pattern.match(str(phone))
 
     if not pattern_true:
@@ -112,6 +112,7 @@ def updateUser():
     res = user_model.updateUser_model(user_model,nickname,headImg,gender,infor,userid)
 
     return res
+
 #修改密码
 #@param：
 # phone：电话

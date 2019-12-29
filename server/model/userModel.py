@@ -183,11 +183,11 @@ class userModel:
 
         # function为0返回验证码
         if function == "0":
-            verifycodeDic[phone] = self.getSms(self)
+            verifycodeDic[phone] = self.getSms(self,phone)
             res["verifycode"] = verifycodeDic[phone]
             return res
 
-        # function为1代表注册，判断验证码是否一致
+        # function为1判断验证码是否一致
         if function == "1":
             if verifycode == verifycodeDic[phone]:
                 # 密码加密
@@ -199,7 +199,7 @@ class userModel:
                 c = conn.cursor()
 
                 # 执行SQL语句
-                SQL = "UPDATE usertable SET password = {} WHERE phone = {}".format(depassword, phone)
+                SQL = "UPDATE usertable SET password = '{}' WHERE phone = {}".format(depassword, phone)
                 c.execute(SQL)
                 conn.commit()
                 conn.close()
