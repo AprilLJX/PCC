@@ -1,58 +1,18 @@
 import json
 from flask import request,Blueprint
 from model import userModel
-import hashlib
 import re
-from aliyunsdkcore.client import AcsClient
-from aliyunsdkcore.request import CommonRequest
-from random import choice
 
-client = AcsClient('LTAI4FoqkVAaNdyWkFNQv1Kk', 'DTfwoggcKGA3E3xQVwxP6pnkq34k7s', 'cn-hangzhou')
-
-# 定义一个种子，从这里面随机拿出一个值，可以是字母
-seeds = "1234567890"
 
 user_view = Blueprint('user_view',__name__)
 user_model = userModel.userModel
-
-#验证码的全局变量
-verifycodeDic = {}
-
-def getSms():
-    # 定义一个空列表，每次循环，将拿到的值，加入列表
-    random_num = []
-    # choice函数：每次从seeds拿一个值，加入列表
-    for i in range(4):
-        random_num.append(choice(seeds))
-    # 将列表里的值，变成四位字符串
-    random_str = "".join(random_num)
-    code = "{\"code\":\"" + random_str + "\"}"
-    request = CommonRequest()
-    request.set_accept_format('json')
-    request.set_domain('dysmsapi.aliyuncs.com')
-    request.set_method('POST')
-    request.set_protocol_type('https')  # https | http
-    request.set_version('2017-05-25')
-    request.set_action_name('SendSms')
-
-    request.add_query_param('RegionId', "cn-hangzhou")
-    request.add_query_param('SignName', "拼车车")
-    request.add_query_param('TemplateCode', "SMS_181501054")
-    request.add_query_param('TemplateParam', code)
-
-    request.add_query_param('PhoneNumbers', "15387594636")
-
-    response = client.do_action(request)
-    # python2:  print(response)
-    return random_str
-    #print(str(response, encoding='utf-8'))
 
 #@param：
 #phone:用户手机注册
 #passwoerd：密码
 #function:为0表示获取验证码，为1表示注册,为2表示修改密码
 #TODofinish:密码hash存储，手机号格式验证
-#todo 手机号验证码
+#todofinish 手机号验证码
 @user_view.route('/signup', methods=["GET", "POST"])
 def signup():
     #获取客户端json
@@ -79,29 +39,9 @@ def signup():
         res["mag"] = "手机号格式错误"
         return res
 
-    #function为0返回验证码
-    if function == "0":
-        verifycodeDic[phone] = getSms()
-        res["verifycode"] = verifycodeDic[phone]
-        return res
+    res = json.dumps(user_model.signup_model(user_model, phone, password,function,verifycode))
 
-    #function为1代表注册，判断验证码是否一致
-    if function == "1":
-        if verifycode == verifycodeDic[phone]:
-            # 密码加密
-            depassword = hashlib.md5()
-            depassword.update(password.encode('utf-8'))
-            depassword = depassword.hexdigest()
-
-            # model层进行数据处理
-            res = json.dumps(user_model.signup_model(user_model, phone, depassword))
-
-            return res
-        else:
-            res["status"] = 0
-            res["msg"] = "验证码错误"
-            return res
-
+    return res
 
 # phone:用户手机注册
 # passwoerd：密码
@@ -131,13 +71,7 @@ def login():
         res["mag"] = "手机号格式错误"
         return res
 
-    #密码加密后与数据库匹配
-    depassword = hashlib.md5()
-    depassword.update(password.encode('utf-8'))
-    depassword = depassword.hexdigest()
-
-
-    res = json.dumps(user_model.login_model(user_model,phone,depassword))
+    res = json.dumps(user_model.login_model(user_model,phone,password))
     return res
 
 #显示用户信息
@@ -171,13 +105,37 @@ def updateUser():
     data = json.loads(request.get_data(as_text=True))
     userid = data.get("userid")
     nickname = data.get("nickname")
-    password = data.get("password")
     headImg = data.get("headImg")
     gender = data.get("gender")
     infor = data.get("infor")
 
-
-    res = user_model.updateUser_model(user_model,nickname,password,headImg,gender,infor,userid)
+    res = user_model.updateUser_model(user_model,nickname,headImg,gender,infor,userid)
 
     return res
+#修改密码
+#@param：
+# phone：电话
+# password：密码
+# function: 0为发送验证码，1为修改密码
+# verifycode：验证码
+@user_view.route('/updatePassword',methods=["GET", "POST"])
+def updatePwd():
+    data = json.loads(request.get_data(as_text=True))
+    phone = str(data.get("phone"))
+    password = str(data.get("password"))
+    function = str(data.get("function"))
+    verifycode = str(data.get("verifycode"))
+
+    res = {}
+
+    #判断用户是否存在
+    if not user_model.updatePwd_model(user_model,phone):
+        res["status"] = 0
+        res["msg"] = "账号不存在"
+        return res
+
+
+
+
+
 
