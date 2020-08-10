@@ -4,7 +4,7 @@ from aliyunsdkcore.client import AcsClient
 from aliyunsdkcore.request import CommonRequest
 from random import choice
 
-client = AcsClient('LTAI4FoqkVAaNdyWkFNQv1Kk', 'DTfwoggcKGA3E3xQVwxP6pnkq34k7s', 'cn-hangzhou')
+client = AcsClient('', '', 'cn-hangzhou')
 
 # 定义一个种子，从这里面随机拿出一个值，可以是字母
 seeds = "1234567890"
